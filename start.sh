@@ -18,4 +18,4 @@ echo "[nginx-confd] confd is listening for changes on etcd..."
 
 # Start nginx
 echo "[nginx-confd] starting nginx service..."
-nginx -g "daemon off; pid /var/run/nginx.pid;"
+nginx -g "daemon off;"
