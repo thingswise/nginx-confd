@@ -1,10 +1,10 @@
 {{ $prefix := getenv "CONFD_PREFIX" }}
-{{ range $skey := lsdir $prefix }}
-  {{ $service := base $skey }}
+{{ range $service := lsdir $prefix }}
+  {{ $skey := printf "%s/%s" $prefix $service }}
 upstream {{ $service }} {  
-    {{ range gets (printf "%s/*" $skey) }}
-      {{ with .Value }}
-  server {{ .host }}:{{ with .port }}{{ . }}{{ else }}1{{ end }};
+    {{ range $entry := gets (printf "%s/*" $skey) }}
+      {{ with $data := json $entry.Value }}
+  server {{ $data.host }}:{{ with $data.port }}{{ . }}{{ else }}1{{ end }};
       {{ end }}
     {{ end }}
 }
