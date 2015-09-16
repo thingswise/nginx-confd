@@ -1,0 +1,5 @@
+#!/bin/bash
+{{if exists "/services/nginx/ssl/crt"}}
+echo "{{getv "/services/nginx/ssl/crt"}}" > /etc/ssl/server.crt  
+echo "{{getv "/services/nginx/ssl/key"}}" > /etc/ssl/server.key
+{{end}}

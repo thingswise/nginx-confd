@@ -1,0 +1,33 @@
+{{ $prefix := getenv "CONFD_PREFIX" }}
+{{ range $skey := lsdir $prefix }}
+  {{ $service := base $skey }}
+upstream {{ $service }} {  
+    {{ range gets (printf "%s/*" $skey) }}
+      {{ with .Value }}
+  server {{ .host }}:{{ with .port }}{{ . }}{{ else }}1{{ end }};
+      {{ end }}
+    {{ end }}
+}
+{{ end }}
+
+{{ range $pubport := split (getenv "NGINX_PORTS") " " }}
+  {{ if or (ne $pubport "443") (ne (len (ls "/services/nginx/ssl")) 0) }}
+server {
+  listen {{ $pubport }};
+    {{ if eq $pubport "443" }}
+  ssl on;
+  ssl_certificate /etc/ssl/server.crt;
+  ssl_certificate_key /etc/ssl/server.key;
+    {{ end }}
+    {{ range $service := split (getenv (printf "NGINX_SERVICES_%s" $pubport)) " " }}
+      {{ with $skey := printf "%s/%s" $prefix $service }}
+        {{ if ne (len (ls $skey)) 0 }}
+  location /{{ $service }} {
+    proxy_pass http://{{ $service }};
+  }
+        {{ end }}
+      {{ end }}
+    {{ end }}  
+}
+  {{ end }}
+{{ end }}
