@@ -22,8 +22,8 @@ server {
     {{ range $service := split (getenv (printf "NGINX_SERVICES_%s" $pubport)) " " }}
       {{ with $skey := printf "%s/%s" $prefix $service }}
         {{ if ne (len (ls $skey)) 0 }}
-  location /{{ $service }} {
-    proxy_pass http://{{ $service }};
+  location /{{ $service }}/ {
+    proxy_pass http://{{ $service }}/;
   }
         {{ end }}
       {{ end }}
