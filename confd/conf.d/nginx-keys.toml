@@ -1,7 +1,7 @@
 [template]
 src = "nginx-keys.sh.tmpl"
 dest = "/usr/local/bin/nginx-keys.sh"
-keys = [ ]
+keys = [ "/services/nginx/ssl" ]
 owner = "root"
 mode = "0700"
 check_cmd = "nginx -t"

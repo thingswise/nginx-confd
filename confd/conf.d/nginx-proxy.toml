@@ -1,7 +1,7 @@
 [template]
 src = "nginx-proxy.conf.tmpl"
 dest = "/etc/nginx/conf.d/proxy.conf"
-keys = [ "/skydns/local/skydns" ]
+keys = [ "/skydns/local/skydns", "/services/nginx/ssl" ]
 owner = "root"
 mode = "0644"
 check_cmd = "nginx -t"
