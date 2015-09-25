@@ -19,12 +19,16 @@ server {
   ssl_certificate /etc/ssl/server.crt;
   ssl_certificate_key /etc/ssl/server.key;
     {{ end }}
-    {{ range $service := split (getenv (printf "NGINX_SERVICES_%s" $pubport)) " " }}
-      {{ with $skey := printf "%s/%s" $prefix $service }}
-        {{ if ne (len (ls $skey)) 0 }}
-  location /{{ $service }}/ {
+    {{ range $service_path := split (getenv (printf "NGINX_SERVICES_%s" $pubport)) " " }}
+      {{ with $service_path_arr := split $service_path ":" }}
+        {{ $service := index $service_path_arr 0 }}
+        {{ $path := index $service_path_arr 1 }}
+        {{ with $skey := printf "%s/%s" $prefix $service }}
+          {{ if ne (len (ls $skey)) 0 }}
+  location {{ $path }} {
     proxy_pass http://{{ $service }}/;
   }
+          {{ end }}
         {{ end }}
       {{ end }}
     {{ end }}  
