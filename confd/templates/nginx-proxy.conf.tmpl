@@ -23,6 +23,13 @@ server {
       {{ with $service_path_arr := split $service_path ":" }}
         {{ $service := index $service_path_arr 0 }}
         {{ $path := index $service_path_arr 1 }}
+        {{ if eq (len $service_path_arr) 3 }}
+          {{ range $excluded_path := split (index $service_path_arr 2) "," }}
+  location {{ $path }}{{$excluded_path}} {
+    return 404;
+  }
+          {{ end }}
+        {{ end }}
         {{ with $skey := printf "%s/%s" $prefix $service }}
           {{ if ne (len (ls $skey)) 0 }}
   location {{ $path }} {
