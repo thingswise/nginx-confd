@@ -25,7 +25,7 @@ server {
         {{ $path := index $service_path_arr 1 }}
         {{ if eq (len $service_path_arr) 3 }}
           {{ range $excluded_path := split (index $service_path_arr 2) "," }}
-  location {{ $path }}{{$excluded_path}} {
+  location ^~ {{ $path }}{{$excluded_path}} {
     return 404;
   }
           {{ end }}
