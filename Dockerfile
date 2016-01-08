@@ -1,4 +1,4 @@
-FROM nginx
+FROM nginx:1.9
 
 MAINTAINER Alexander Lukichev
 
