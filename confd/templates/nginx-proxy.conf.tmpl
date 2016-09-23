@@ -1,7 +1,7 @@
 {{ $prefix := getenv "CONFD_PREFIX" }}
 {{ range $service := lsdir $prefix }}
   {{ $skey := printf "%s/%s" $prefix $service }}
-upstream {{ $service }} {  
+upstream {{ $service }} {
     {{ range $entry := gets (printf "%s/*" $skey) }}
       {{ with $data := json $entry.Value }}
   server {{ $data.host }}:{{ with $data.port }}{{ . }}{{ else }}1{{ end }};
@@ -11,34 +11,39 @@ upstream {{ $service }} {
 {{ end }}
 
 {{ range $pubport := split (getenv "NGINX_PORTS") " " }}
-  {{ if or (ne $pubport "443") (ne (len (ls "/services/nginx/ssl")) 0) }}
+  {{ if or (and (ne $pubport "443") (ne $pubport "8883")) (ne (len (ls "/services/nginx/ssl")) 0) }}
 server {
   listen {{ $pubport }};
-    {{ if eq $pubport "443" }}
+    {{ if or (eq $pubport "443") (eq $pubport "8883") }}
   ssl on;
   ssl_certificate /etc/ssl/server.crt;
   ssl_certificate_key /etc/ssl/server.key;
     {{ end }}
     {{ range $service_path := split (getenv (printf "NGINX_SERVICES_%s" $pubport)) " " }}
       {{ with $service_path_arr := split $service_path ":" }}
-        {{ $service := index $service_path_arr 0 }}
-        {{ $path := index $service_path_arr 1 }}
-        {{ if eq (len $service_path_arr) 3 }}
-          {{ range $excluded_path := split (index $service_path_arr 2) "," }}
+        {{ if eq (len $service_path_arr) 1 }}
+          {{ $service := index $service_path_arr 0 }}
+  proxy_pass {{ $service }};
+        {{ else }}
+          {{ $service := index $service_path_arr 0 }}
+          {{ $path := index $service_path_arr 1 }}
+          {{ if eq (len $service_path_arr) 3 }}
+            {{ range $excluded_path := split (index $service_path_arr 2) "," }}
   location ^~ {{ $path }}{{$excluded_path}} {
     return 404;
   }
+            {{ end }}
           {{ end }}
-        {{ end }}
-        {{ with $skey := printf "%s/%s" $prefix $service }}
-          {{ if ne (len (ls $skey)) 0 }}
+          {{ with $skey := printf "%s/%s" $prefix $service }}
+            {{ if ne (len (ls $skey)) 0 }}
   location {{ $path }} {
     proxy_pass http://{{ $service }}/;
   }
+            {{ end }}
           {{ end }}
         {{ end }}
       {{ end }}
-    {{ end }}  
+    {{ end }}
 }
   {{ end }}
 {{ end }}
