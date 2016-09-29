@@ -14,7 +14,7 @@ upstream {{ $service }} {
   {{ if ne $pubport "" }}
     {{ $service := getenv (printf "NGINX_SERVICES_%s" $pubport) }}
     {{ $skey := printf "%s/%s" $prefix $service }}
-    {{ if exists $skey }}
+    {{ if ne (len (ls $skey)) 0 }}
 server {
   listen {{ $pubport }};
   proxy_pass {{ $service }};
@@ -29,7 +29,7 @@ server {
     {{ if ne (len $pubport) 0 }}
       {{ $service := getenv (printf "NGINX_SERVICES_%s" $pubport) }}
       {{ $skey := printf "%s/%s" $prefix $service }}
-      {{ if exists $skey }}
+      {{ if ne (len (ls $skey)) 0 }}
 server {
   listen {{ $pubport }};
   ssl on;
