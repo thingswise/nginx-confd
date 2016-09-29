@@ -14,7 +14,7 @@ upstream {{ $service }} {
   {{ if or (ne $pubport "443") (ne (len (ls "/services/nginx/ssl")) 0) }}
 server {
   listen {{ $pubport }};
-    {{ if or (eq $pubport "443") (eq $pubport "8883") }}
+    {{ if eq $pubport "443" }}
   ssl on;
   ssl_certificate /etc/ssl/server.crt;
   ssl_certificate_key /etc/ssl/server.key;
@@ -48,16 +48,5 @@ server {
   {{ end }}
 {{ end }}
 
-{{ if (ne (len (getenv "NGINX_STREAM_PORTS")) 0) }}
-stream {
-  {{ range $pubport := split (getenv "NGINX_STREAM_PORTS") " " }}
-  server {
-    listen {{ $pubport }};
-    {{ $service := getenv (printf "NGINX_SERVICES_%s" $pubport) }}
-    proxy_pass {{ $service }};
-  }
-  {{ end }}
-}
-{{ end }}
 
 

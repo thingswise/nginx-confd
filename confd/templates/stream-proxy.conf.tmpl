@@ -1,0 +1,33 @@
+{{ $prefix := getenv "CONFD_PREFIX" }}
+{{ range $service := lsdir $prefix }}
+  {{ $skey := printf "%s/%s" $prefix $service }}
+upstream {{ $service }} {
+    {{ range $entry := gets (printf "%s/*" $skey) }}
+      {{ with $data := json $entry.Value }}
+  server {{ $data.host }}:{{ with $data.port }}{{ . }}{{ else }}1{{ end }};
+      {{ end }}
+    {{ end }}
+}
+{{ end }}
+
+{{ range $pubport := split (getenv "NGINX_STREAM_PORTS") " " }}
+server {
+  listen {{ $pubport }};
+  {{ $service := getenv (printf "NGINX_SERVICES_%s" $pubport) }}
+  proxy_pass {{ $service }};
+}
+{{ end }}
+
+
+{{ if ne (len (ls "/services/nginx/ssl")) 0 }}
+  {{ range $pubport := split (getenv "NGINX_STREAM_SSL_PORTS") " " }}
+server {
+  listen {{ $pubport }};
+  ssl on;
+  ssl_certificate /etc/ssl/server.crt;
+  ssl_certificate_key /etc/ssl/server.key;
+  {{ $service := getenv (printf "NGINX_SERVICES_%s" $pubport) }}
+  proxy_pass {{ $service }};
+}
+  {{ end }}
+{{ end }}

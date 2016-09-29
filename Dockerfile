@@ -6,6 +6,7 @@ ADD https://github.com/kelseyhightower/confd/releases/download/v0.10.0/confd-0.1
 RUN chmod +x /bin/confd
 
 COPY confd /etc/confd
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
