@@ -53,7 +53,7 @@ stream {
   {{ range $pubport := split (getenv "NGINX_STREAM_PORTS") " " }}
   server {
     listen {{ $pubport }};
-    {{ range $service := split (getenv (printf "NGINX_SERVICES_%s" $pubport)) " " }}
+    {{ $service := getenv (printf "NGINX_SERVICES_%s" $pubport) }}
     proxy_pass {{ $service }};
   }
   {{ end }}
