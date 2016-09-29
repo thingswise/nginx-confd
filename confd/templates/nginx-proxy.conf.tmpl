@@ -11,7 +11,7 @@ upstream {{ $service }} {
 {{ end }}
 
 {{ range $pubport := split (getenv "NGINX_PORTS") " " }}
-  {{ if or (and (ne $pubport "443") (ne $pubport "8883")) (ne (len (ls "/services/nginx/ssl")) 0) }}
+  {{ if or (ne $pubport "443") (ne (len (ls "/services/nginx/ssl")) 0) }}
 server {
   listen {{ $pubport }};
     {{ if or (eq $pubport "443") (eq $pubport "8883") }}
@@ -47,3 +47,17 @@ server {
 }
   {{ end }}
 {{ end }}
+
+{{ if (ne (len (getenv "NGINX_STREAM_PORTS")) 0) }}
+stream {
+  {{ range $pubport := split (getenv "NGINX_STREAM_PORTS") " " }}
+  server {
+    listen {{ $pubport }};
+    {{ range $service := split (getenv (printf "NGINX_SERVICES_%s" $pubport)) " " }}
+    proxy_pass {{ $service }};
+  }
+  {{ end }}
+}
+{{ end }}
+
+
