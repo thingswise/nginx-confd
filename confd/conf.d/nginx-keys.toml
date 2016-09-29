@@ -4,5 +4,5 @@ dest = "/usr/local/bin/nginx-keys.sh"
 keys = [ "/services/nginx/ssl" ]
 owner = "root"
 mode = "0700"
-check_cmd = "nginx -t"
+#check_cmd = "nginx -t"
 reload_cmd = "bash -c '/usr/local/bin/nginx-keys.sh && for pid in `cat /var/run/nginx.pid`; do kill -HUP $pid; done'"
