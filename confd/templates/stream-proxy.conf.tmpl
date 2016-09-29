@@ -11,23 +11,33 @@ upstream {{ $service }} {
 {{ end }}
 
 {{ range $pubport := split (getenv "NGINX_STREAM_PORTS") " " }}
+  {{ if ne $pubport "" }}
+    {{ $service := getenv (printf "NGINX_SERVICES_%s" $pubport) }}
+    {{ $skey := printf "%s/%s" $prefix $service }}
+    {{ if exists $skey }}
 server {
   listen {{ $pubport }};
-  {{ $service := getenv (printf "NGINX_SERVICES_%s" $pubport) }}
   proxy_pass {{ $service }};
 }
+    {{ end }}
+  {{ end }}
 {{ end }}
 
 
 {{ if ne (len (ls "/services/nginx/ssl")) 0 }}
   {{ range $pubport := split (getenv "NGINX_STREAM_SSL_PORTS") " " }}
+    {{ if ne (len $pubport) 0 }}
+      {{ $service := getenv (printf "NGINX_SERVICES_%s" $pubport) }}
+      {{ $skey := printf "%s/%s" $prefix $service }}
+      {{ if exists $skey }}
 server {
   listen {{ $pubport }};
   ssl on;
   ssl_certificate /etc/ssl/server.crt;
   ssl_certificate_key /etc/ssl/server.key;
-  {{ $service := getenv (printf "NGINX_SERVICES_%s" $pubport) }}
   proxy_pass {{ $service }};
 }
+      {{ end }}
+    {{ end }}
   {{ end }}
 {{ end }}
