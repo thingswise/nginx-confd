@@ -31,8 +31,7 @@ server {
       {{ $skey := printf "%s/%s" $prefix $service }}
       {{ if ne (len (ls $skey)) 0 }}
 server {
-  listen {{ $pubport }};
-  ssl on;
+  listen {{ $pubport }} ssl;
   ssl_certificate /etc/ssl/server.crt;
   ssl_certificate_key /etc/ssl/server.key;
   proxy_pass {{ $service }};
