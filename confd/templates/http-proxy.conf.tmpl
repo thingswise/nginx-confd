@@ -38,6 +38,7 @@ server {
             {{ if ne (len (ls $skey)) 0 }}
   location {{ $path }} {
     proxy_pass http://{{ $service }}/;
+    proxy_cookie_path / {{ $path }};
   }
             {{ end }}
           {{ end }}
